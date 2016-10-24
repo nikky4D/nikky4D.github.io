@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Nkiruka Uzuegbunam Blog</title>
+    <description>Project Descriptions.</description>
+    <link>http://nikky4D.github.io/</link>
+    <atom:link href="http://nikky4D.github.io/feed.xml" rel="self" type="application/rss+xml" />
+    <pubDate>Sun, 23 Oct 2016 22:49:11 -0400</pubDate>
+    <lastBuildDate>Sun, 23 Oct 2016 22:49:11 -0400</lastBuildDate>
+    <generator>Jekyll v3.2.1</generator>
+    
+      <item>
+        <title>Hello World, Site Launched</title>
+        <description>&lt;p&gt;Testing out system for jekyll, and mathjax for documenting research&lt;/p&gt;
+
+&lt;p&gt;Testing equations: &lt;script type=&quot;math/tex&quot;&gt;a^2 + b^2 = c^2&lt;/script&gt;&lt;/p&gt;
+
+&lt;p&gt;Testing &lt;strong&gt;markdown&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;To ensure I remember the workflow to publish:&lt;/p&gt;
+
+&lt;h4 id=&quot;workflow-to-publish-new-blog-posts&quot;&gt;Workflow to Publish new blog posts&lt;/h4&gt;
+&lt;p&gt;Navigate to folder containing website. Navigate to posts&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;cd &lt;/span&gt;_posts
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;vi YYYY-MM-DD-file-name.markdown
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Write the blogpost, saving in markdown. Use gedit/atom for now. Don’t forget the Front matter like so:&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;---
+layout: post
+title:  &lt;span class=&quot;s2&quot;&gt;&quot; title&quot;&lt;/span&gt;
+excerpt: &lt;span class=&quot;s2&quot;&gt;&quot;Snippet of post/Post summary&quot;&lt;/span&gt;
+date:   YYYY-MM-DD Time
+---
+
+&lt;span class=&quot;k&quot;&gt;**&lt;/span&gt;markdown&lt;span class=&quot;k&quot;&gt;**&lt;/span&gt; post
+
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Return to console, and build to preview site:&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;cd&lt;/span&gt; ..
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;bundle &lt;span class=&quot;nb&quot;&gt;exec &lt;/span&gt;jekyll serve
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Push to github&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;cd&lt;/span&gt; ..
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;git add .
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;git commit -m &lt;span class=&quot;s2&quot;&gt;&quot;new blog post&quot;&lt;/span&gt;
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;git push
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Github automatically refreshes and post is live.&lt;/p&gt;
+
+&lt;p&gt;Reference: These notes were modified from karpathy.github.io/2014-07-01-switching-to-jekyll.markdown&lt;/p&gt;
+</description>
+        <pubDate>Sun, 23 Oct 2016 00:00:00 -0400</pubDate>
+        <link>http://nikky4D.github.io/2016/10/23/hello-world-site-launched/</link>
+        <guid isPermaLink="true">http://nikky4D.github.io/2016/10/23/hello-world-site-launched/</guid>
+        
+        
+      </item>
+    
+  </channel>
+</rss>

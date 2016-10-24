@@ -1,0 +1,18 @@
+# Site settings
+title: Nkiruka Uzuegbunam Blog
+email: 
+description: "Project Descriptions."
+baseurl: ""
+url: "http://nikky4D.github.io"
+twitter_username: nueluno
+github_username:  nikky4D
+
+# Build settings
+markdown: kramdown
+permalink: pretty
+
+highlighter: rouge
+kramdown:
+  input: GFM
+  auto_ids: true
+  syntax_highlighter: rouge
