@@ -52,4 +52,6 @@ $ git push
 
 Github automatically refreshes and post is live. 
 
+Cool. My first posts on this website will be rough. They will be documenting my thought process and my research work. No real polish. Some images, or none. Just writeups. It will take some time to begin to use blogging as a research tool.
+
 Reference: These notes were modified from karpathy.github.io/2014-07-01-switching-to-jekyll.markdown
