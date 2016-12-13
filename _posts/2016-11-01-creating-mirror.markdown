@@ -23,16 +23,16 @@ In particular, my task is to simulate planar mirror reflections given the follow
 
 7. Realtime for realistic interactions
 
-# Why do I want to simulate a mirror
+#### Why do I want to simulate a mirror
 
 Mirrors are used for many purposes, one of which is medicine. In medicine, mirrors are used in pain therapy [1], and beyond this, self-imagery (reflection/viewing of your face/person) are being used in behavioral interventions. For instance, Video Self-Modeling (VSM)[2,3] is a behavioral intervention where the user learns by watching a video of herself perform an action. Learning occurs by observng herself perform, an unlearned(?) action that she can acquire (*observational learning*). VSM, and technologies like it (eg. virtual reality dopplegangers[4]) have been shown to be effective in their various applications. However, they are often difficult to produce. VSM requires hours of footage, in order to piece together a short video, showing the user *seemingly* performing the desired action. Dopplegangers are virtual reality replicas of the user, and requires tedious 3D capture of the user's face (and body). Furthermore, these technologies often do not provide any feedback or other form of interaction to the user. In addition, there is little work on the relationship, if any, of a user's learning speed or retention and feedback (or interaction) from a user's self-image during the learning process. 
 
-# What do you propose
+#### What do you propose
 
 For the particular case of behavioral interventions (such as VSM or dopplegangers), a modifiable mirror-like display can provide some answers to the above stated problems. Imagine a programmable planar mirror where a user can interact with their reflection. And... their reflection talks back to them and has its own reactions to the user's actions. 
 
 
-# What has been done
+#### What has been done
 
 Generating a virtual mirror is a relatively solved problem in computer graphics. However, computer graphics solutions require a 3D model of the environment. They need a description of all the objects within the environment (lights, models, textures etc). These things are not available in the real world and would require extensive calculations and much tedious work to produce, if it can be produced. 
 
@@ -40,7 +40,7 @@ Image processing and computer vision techniques offer an alternative. In fact, t
 
 While I need to do more work in my research into relevant papers, I do not believe there have been many more advances in the real-time simulation of a virtual mirror (Please let me know via email or twitter if you disagree, with the attendant papers for reference). 
 
-# What now
+#### What now
 
 In this work, I want to modify the work of Shen et. al[5] in the following ways:
 
@@ -52,13 +52,13 @@ In this work, I want to modify the work of Shen et. al[5] in the following ways:
 
 4. To ensure the camera tracks the user's face, the display can be a one-way mirror, with the camera behind the mirror, and the user in front of it. The allows the camera to center the user's face in the image at all times. It should make the rendering easier. Will prove/disprove it later. 
 
-# Thus far
+#### Thus far
 
 Thus far, I am working on hallucinating the zooming effect, and will explain my progress and my experiments in my next post. 
 
 
 
-# References
+#### References
 
 
 1. Ramachandran, Vilayanur S., Diane Rogers-Ramachandran, and Steve Cobb. "Touching the phantom limb." Nature 377.6549 (1995): 489-490.
