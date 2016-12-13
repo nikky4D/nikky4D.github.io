@@ -1,7 +1,7 @@
 # Site settings
 title: Nkiruka Uzuegbunam Blog
 email: 
-description: "Project Descriptions."
+description: Website documenting my thesis projects and progress as well as other projects I attempt.
 baseurl: ""
 url: "http://nikky4D.github.io"
 twitter_username: nueluno
@@ -12,7 +12,10 @@ markdown: kramdown
 permalink: pretty
 
 highlighter: rouge
+include: [_pages,_researchPages]
 kramdown:
   input: GFM
   auto_ids: true
   syntax_highlighter: rouge
+
+
