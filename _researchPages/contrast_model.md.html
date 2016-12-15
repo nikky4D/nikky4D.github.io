@@ -74,7 +74,7 @@ In order to decipher what is happening and what to do, I researched, and am rese
 
 2. Deblurring (Blind or Non-Blind deconvolution): Model :  $ f(x) = k * I(x) + noise $ . Noise is usually Guassian, and k is the convolutional kernel. If known, it is Non-Blind deconvolution, else it is Blind deconvolution. This model did not fit, at first (I will come back to this later), because the TWM images did not appear blurred as the images in many of the papers I read. In addition, many of these papers talked of blurring reconstruction as recovering an image that had undergone camera motion. My system had no camera motion. This discouraged me and I looked around for works involving imaging through a medium. This led me to dehazing. 
 
-3. Dehazing: Model: $ I(x) = \alpha * L(x) + (1 - \alpha) * Airlight $. Airlight is the atmospheric light, and alpha is attentuation due to fog/haze (fog is not haze, I learnt)/water particles/other particles. This model looks at imaging in a hazing medium. The medium is fog/haze/water. The camera is viewing the object through a hazing medium. For instance, imaging underwater (camera can be in the water with the object), imaging through fog/mist/haze (camera is also in the haze/fog/mist with the object). This was a very interesting line of research. From all the lecture notes I read (and I don't remember where I got them all from), I could automatically see the application. The first paper I read on this was by Berman et. al [#Berman16]. It was quickly followed by works by Bahat and Irani [#Bahat16], He et. al [#He11], then the thesis of He [#He11thesis], that had a derivation of the dehazing model. Chasing down the origins of the dehazing model referenced in [#He11thesis] led me to works by Schechner and Narasimhan [#Yoav04][#Yoav03][#Sri02][#Yoav11], (I did not read them in this order) . It made me think several things that ultimately led to studying physics of light transport (optics):
+3. Dehazing: Model: $ I(x) = \alpha * L(x) + (1 - \alpha) * Airlight $. Airlight is the atmospheric light, and alpha is attentuation due to fog/haze (fog is not haze, I learnt)/water particles/other particles. This model looks at imaging in a hazing medium. The medium is fog/haze/water. The camera is viewing the object through a hazing medium. For instance, imaging underwater (camera can be in the water with the object), imaging through fog/mist/haze (camera is also in the haze/fog/mist with the object). This was a very interesting line of research. From all the lecture notes I read (and I don't remember where I got them all from), I could automatically see the application. The first papers I read on this was by Berman et. al [#Berman16] , quickly followed by works by Bahat and Irani [#Bahat2016] , He et. al [#He11] , then the thesis of He [#Hethesis], that had a derivation of the dehazing model. Chasing down the origins of the dehazing model referenced in [#He11thesis] led me to works by Schechner and Narasimhan [#Yoav04][#Yoav03][#Sri02][#Yoav11], (I did not read them in this order). It gave me food for thought that ultimately led to studying physics of light transport (optics):
 
 			1. I had training image pairs, (i.e. (input,output) ) and could derive a reconstruction prior. 
 			2. Using the non-local techniques of [#Berman16] on the current degraded image, combined with the previously learnt prior, I could come up with a good model for the restoration using the dehazing model. 
@@ -93,25 +93,23 @@ In this work, we have explained how a TWM works. A TWM, designed for privacy, re
 
 
  References
- --------------------------------------------------------------------------------
+ ----------------------------------------------------------------------------------------------
 
- 	[#Berman16]: Berman, Dana, Treibitz, Tali and Avidan, Shai. "Non-local Image Dehazing." Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition. 2016. 
+ [#Berman16]: Berman, Dana, Treibitz, Tali and Avidan, Shai. "Non-local Image Dehazing." Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition. 2016. 
 
- 	[#Bahat16]: Bahat, Yuval, and Irani, Michal. "Blind Dehazing Using Internal Patch Recurrence." ICCP, 2016.
+ [#Bahat2016]: Bahat, Yuval, and Irani, Michal. "Blind Dehazing Using Internal Patch Recurrence." ICCP, 2016.
 
- 	[#He11]: He, Kaiming, Jian Sun, and Xiaoou Tang. "Single image haze removal using dark channel prior." IEEE transactions on pattern analysis and machine intelligence 33.12 (2011): 2341-2353.
+ [#He11]: He, Kaiming, Jian Sun, and Xiaoou Tang. "Single image haze removal using dark channel prior." IEEE transactions on pattern analysis and machine intelligence 33.12 (2011): 2341-2353.
 
- 	[#He11thesis]: He, Kaiming. "Single image haze removal using dark channel prior". Dissertation, Chinese University of Hong Kong, 2011.
+ [#He11thesis]: He, Kaiming. "Single image haze removal using dark channel prior". Dissertation, Chinese University of Hong Kong, 2011.
 
- 	[#Yoav11]: Schechner, Y. Yoav. "Inversion by P $^4$ : polarization-picture post-processing". Phil. Trans. R. Soc. B 366 (2011), 638-648
+ [#Yoav11]: Schechner, Y. Yoav. "Inversion by P $^4$ : polarization-picture post-processing". Phil. Trans. R. Soc. B 366 (2011), 638-648.
 
- 	[#Yoav03]: Schechner, Yoav Y., Narasimhan, Srinivasa G., Nayar, Shree K. "Polarization-based vision through haze". Applied Optics, Vol. 43, No. 3, January 20, 2003: 511-525.
+ [#Yoav03]: Schechner, Yoav Y., Narasimhan, Srinivasa G., Nayar, Shree K. "Polarization-based vision through haze". Applied Optics, Vol. 43, No. 3, January 20, 2003: 511-525.
 
- 	[#Yoav04]: Schechner, Yoav Y., Karpel, Nir. "Recovering Scenes by Polarization Analysis". Proc. MTS/IEEE Oceans 2004, Vol. 3, 2004: 1255-1261.
+ [#Yoav04]: Schechner, Yoav Y., Karpel, Nir. "Recovering Scenes by Polarization Analysis". Proc. MTS/IEEE Oceans 2004, Vol. 3, 2004: 1255-1261.
 
- 	[#Sri02]: Narasimhan, Srinivasa G., Nayar, Shree K. "Vision and the Atmosphere". International Journal of Computer Vision, Vol. 48, No. 3, 2002: 233-254.
-
-
+ [#Sri02]: Narasimhan, Srinivasa G., Nayar, Shree K. "Vision and the Atmosphere". International Journal of Computer Vision, Vol. 48, No. 3, 2002: 233-254.
 
 
 
@@ -119,4 +117,6 @@ In this work, we have explained how a TWM works. A TWM, designed for privacy, re
 
 
 
-<!-- Markdeep: --><style class="fallback">body{visibility:hidden;white-space:pre;font-family:monospace}</style><script src="markdeep.min.js"></script><script src="https://casual-effects.com/markdeep/latest/markdeep.min.js"></script><script>window.alreadyProcessedMarkdeep||(document.body.style.visibility="visible")</script>
+
+
+<!-- Markdeep: --><style class="fallback">body{visibility:hidden;white-space:pre;font-family:monospace}</style><script src="markdeep.min.js"></script><script src="markdeep.min.js"></script><script>window.alreadyProcessedMarkdeep||(document.body.style.visibility="visible")</script>
