@@ -77,15 +77,28 @@ In order to decipher what is happening and what to do, I researched, and am rese
 3. Dehazing: Model: $ I(x) = \alpha * L(x) + (1 - \alpha) * Airlight $. Airlight is the atmospheric light, and alpha is attentuation due to fog/haze (fog is not haze, I learnt)/water particles/other particles. This model looks at imaging in a hazing medium. The medium is fog/haze/water. The camera is viewing the object through a hazing medium. For instance, imaging underwater (camera can be in the water with the object), imaging through fog/mist/haze (camera is also in the haze/fog/mist with the object). This was a very interesting line of research. From all the lecture notes I read (and I don't remember where I got them all from), I could automatically see the application. The first papers I read on this was by Berman et. al [#Berman16] , quickly followed by works by Bahat and Irani [#Bahat2016] , He et. al [#He11] , then the thesis of He [#Hethesis], that had a derivation of the dehazing model. Chasing down the origins of the dehazing model referenced in [#He11thesis] led me to works by Schechner and Narasimhan [#Yoav04][#Yoav03][#Sri02][#Yoav11], (I did not read them in this order). It gave me food for thought that ultimately led to studying physics of light transport (optics):
 
 			1. I had training image pairs, (i.e. (input,output) ) and could derive a reconstruction prior. 
-			2. Using the non-local techniques of [#Berman16] on the current degraded image, combined with the previously learnt prior, I could come up with a good model for the restoration using the dehazing model. 
+			2. Using the non-local techniques of [#Berman16] [#Bahat2016] on the current degraded image, combined with the previously learnt prior, I could come up with a good model for the restoration using the dehazing model. 
 			3. The dehazing model requires Airlight. This made sense for imaging outdoors or in water since the amount of light reaching the camera is 1) attenuated by the particles in the medium, 2) changes based on when the shot is taken and 3) Is maximum at the horizon. As my scene is static (background is static, foreground people and objects move), indoors, and light in the room does not change, it did not make sense to include Airlight. 
 			4. However, I could include a term to estimate room light. It was not maximum at the horizon (there is none in a room) as with atmospheric light. This meant that the 1 in the  model for airlight would need to change. Further thought, however, made me ask the question, *why should I estimate room light at all?* I am not doing computer graphics that needs an accurate description of the lights in the room. All I want is to decipher a function that can successfully reverse the image degredation in the TWM images. It might not be necessary to model the light in the room separately from the light from the objects in the room, especially as the *hazing medium in my case is constant (TWM: a slab of half-silvered glass)* from image to image and day to day. 
-			5. Hence, if I say that the camera image without the obstructing TWM *includes* room light and object light, **THEN** the image with TWM (camera image taken through TWM) is an attenuation (because of light reduction) and some blurring/hazing (speckle/saturation of pixels) of the original room light and object light. 
+			5. Hence, if I say that the camera image without the obstructing TWM *includes* room light and object light, **THEN** the image with TWM (camera image taken through TWM) is an attenuation (because of light reduction) and some blurring/hazing (speckle/saturation of pixels) of the original room light and object light. This led me to 6.
+			6. I need to figure out how light moves through a half-silvered mirror, and what does that entail for imaging the scene. 
+
+Currently, I am studying how how light will move from air, through the TWM, and back into air and to the camera. This involves studying transmission/refraction of light as it goes from one medium to another, optics of thin film interference, optics of diffraction since TWM involves a sparse distribution of metal on top of a slap of transparent glass. I will detail all these in the next post. But, based on my work, I am expecting something like this:
+
+$ I(x) = \alpha L(x) + k * (1 - \alpha L(x)) $ 
+
+My reasoning is thus: Imagine that the TWM consists of a slap of glass, with a sparse, thin layer of molecules laid on top of it. Then, the light that is transmitted through the TWM should consist of two things:
+
+ 1) the direct transmission from the scene that passes through the reflective metal layer and the glass (this will attenuated by constant) giving $ \alpha L(x) $, and
+
+ 2) the light that is scattered in the forward direction (caused by multiple reflections and refractions within the glass slab) that comes is some function of the light remaining after transmission, i.e $1 - \alpha L(x)$ giving $ k * (1 - \alpha L(x)) $ where k is a blurring kernel that convolves the remainder of the transmission.
+
+ We will see if the above hypothesis is true after much research and work. 
 
  
 Summary
 -------------------------------------------------------------------------------
-In this work, we have explained how a TWM works. A TWM, designed for privacy, reflects most of the light hitting it, while allowing others to pass through. It is composed of a transparent medium, often glass, acrylic or some transparent plastic, coated with a very thin layer of a reflective medium, often silver or aluminium. A TWM acts like a mirror when the reflective side is much more brightly lit than the transparent side. In my next post, I will further explain the robotic mirror, my intended usage of the TWM.
+In this work, we have explained the first part of my thought process for a TWM contrast enhancement model. In the next part, I will present my research results (as soon as I make them) and complete the description of my reasoning process. 
 
 
 [Click here](../index.html) to navigate back to home page.
