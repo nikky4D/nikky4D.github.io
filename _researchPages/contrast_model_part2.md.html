@@ -1,0 +1,369 @@
+                <meta charset="utf-8" emacsmode="-*- markdown -*-">
+                            **Light Transpost Model of Imaging through a Mirror Box for use in Image Restoration**
+                            							*Nkiruka Uzuegbunam, Jan 21, 2017*
+
+Deriving the Light Transport Model 
+===============================================================================
+
+In this work, I attempt to derive a plausible model for imaging in a mirrored box. Using this model, I estimate an image formation model that can guide image restoration in such a setting. 
+
+ The mirrored box is shown in Figure [mirrorbox]. A camera is placed in a black-cloth lined box. The back of the box is open (not shown). A robotic arm controls the motion of the camera through this opening (not shown). A one-way mirror is installed in front of the box, at a $45\degrees$ angle. The camera views the scene through the mirror. The mirror may collect dust, and oil smears from fingerprints. 
+
+
+Assume no light is in the box. Light from the scene passes through the mirror to get to the camera. A white meshlike (cheesecloth) thin cloth is drawn taut above the mirror. The cloth serves as the projection surface. Some light from the scene will pass through the mesh before reaching the mirror. A projector placed some distance above the box, projects directly onto the white cloth. Light transmitted through the white cloth will be reflected to the scene. Some transmitted light from the white cloth will also be transmitted through the mirror to the camera.  
+
+![Figure [mirrorBox]: Mirror Box](../assets/box_stage7.png)
+
+From the description, it is clear that the image taken by the camera in such a setup as in Figure [mirrorBox] will exhibit different actifacts. It may contain blurring, contrast degredation, image lightening, and noise artifacts.
+
+ In this work, I am concerned with deriving a model to guide the restoration of images taken in this setup. I have training data. The data is obtained since I have access to the box. Thus, I can take images with the box in the way, $I_{m}$. I can take corresponding images without the box in the way, $I_{o}$. Using these image pairs, {$ I_{m}, I_{o} $}, can I estimate the function that maps $I_{m}$ to $I_{o}$.
+
+In order to derive the model, we will break the mirror box down into different parts. We will derive each part separately, slowly building to the final model. Please note, I will waver between specifics (parts known), to hand waving (parts based on intuition). Any help in clarifying intuition with mathematical models is appreciated.
+
+[Click here](../index.html) to navigate back to home page.
+
+
+Mirror Isolated
+--------------------------------------------------------------------------------
+In an earlier note, I derived the transmission equations for the one-way mirror, with no contaminant layer. As stated in the earlier note, a one-way mirror is a slab of glass (or other transparent material) topped with a very sparse layer of very reflective metal. Silver or aluminium are two examples of metals used. In this model, I assume a glass-silver mirror. 
+
+The metal layer reflects light, with no transmission to the glass layer. However, as shown in Figure [onewayMirror], due to the sparseness of the metal layer, some light will not hit the metal layer but strike the glass. Unlike metal, the glass reflects little light, transmitting most through the glass, to the air. 
+
+![Figure [onewayMirror]: A one-way mirror. Glass is light blue. Metal is gray](../assets/mirror_lightTransport.png width = "300px")
+
+
+The light transmitted through the mirror is attenuated by a constant factor. The factor is determined solely by the directions of incoming/outgoing light rays $(\theta_{i}, \theta_{t}, \theta_{t'})$ and the Fresnel equations of the system in Figure [onewayMirror]. See earlier note for detailed derivation. 
+
+In summary, we have analyzed how light will move through a clean one-way mirror. In the next section, we analyze how light will move through a one-way mirror with a thin layer of contaminants.
+
+[Click here](../index.html) to navigate back to home page.
+
+
+
+Mirror Isolated, with a Thin Layer of Contaminants
+--------------------------------------------------------------------------------
+Assume the mirror is used constantly. It may not always be cleaned. As such, an optically thin layer of contaminants consisting of dust/dirt/oil from fingerprints may develop over the mirror. We ignore the contaminants over the silver layer as our concern is transmission, not reflection. Contaminants will form on the glass layer, in the holes between silver particles as shown in Figure [onewayMirrorDust]. 
+
+
+![Figure [onewayMirrorDust]: Contaminants form over the glass layer](../assets/mirror_lightTransport2.png width = "300px")
+
+
+We will use Figure [glassTransmission] below. Working with Light Transport theory from computer graphics, the equations of light transmission can be obtained from [#Gu_07_dirtyglass] and [#Hanrahan_93].
+
+![Figure [glassTransmission]: Light transmittance in dirty glass. Figure taken from [#Gu_07_dirtyglass]](../assets/dirtyglass_img.png)
+
+The transport equations were derived in [#Hanrahan_93], and explicitly stated in [#Gu_07_dirtyglass]. For single scattering, for an optically thin layer of contaminants, the transmission from air-to-contaminants-to-glass is:
+
+$$ L_{t}^{1} = e^{\frac{−τ}{μ_{i}'}} \cdot T_{12}T_{23} \cdot \delta(ω'_{i} , ω'_{t}) \cdot L_{i}, $$
+
+$$ L_{t}^{2} = \frac{ T_{12}T_{23} } { μ_{i}' - μ_{t}' } \cdot (e^{\frac{−τ}{μ_{i}'}} − e^{\frac{−τ}{μ_{t}'}}) \cdot \omega_{o} \cdot p(\theta_{i}' - \theta_{t}') \cdot L_{i} $$
+
+where $ μ^{i}_{k} = cos (\theta^{i}_{k}) $, $\tau$ = extinction coefficient of contaminant layer, $\omega_{o}$ = albedo of single scattering, $p(\theta )$ = phase function which describes how light scatters. See [#Gu_07_dirtyglass] and [#Hanrahan_93] for detailed discussion.
+
+$L_{t}^{1}$ is the light directly transmitted through the layers. It is attenuated by Fresnel coefficients at the individual layer boundaries. It is also attenuated by transmission through the contaminant layer. $L_{t}^{2}$ is light forward scattered during transmission through the contaminant layer. 
+
+This model was designed for 3 layers, where light goes from air to contaminant to glass. The model is easily extended for an additional layer (glass-air) by multiplying with appropriate fresnel coefficients for glass-air boundary. 
+
+Now, in our work, we are interested in how to restore images. This is unlike computer graphics which is concerned with creating a realistic image. We are concerned with finding a general model that explains the image degredation. Thus, this model should also guide the image restoration process. In the following, I will make assumptions to make creating the model easier. 
+
+Assume the contaminant layer is optically thin, and of constant width over the mirror. This implies $\tau$ is constant. This assumption can be relaxed to make $\tau$ locally constant. 
+
+In addition assume glass does not scatter light significantly as no impurities in the glass. This sets the extinction coefficient of glass to 1. 
+
+Furthermore, assume contaminant layer does mostly forward scattering. This fits with the intuition that a scene viewed through a dirty glass appears blurry. 
+
+Hence, over all imcoming directions, we can rewrite $L_{t}^{2}$ as a convolution of attenuated incoming light. This is commonly done in computer graphics.
+
+$$ L_{t}^{2} = \alpha^{1} \cdot f_{m} * L_{i} $$
+
+where $f_{m}$ is the convolution function incorporating the effects of scattering due to contaminant layer, and $\alpha^{1}$ incorporates the Fresnel coefficients. 
+
+The final model combining $L_{t}^{1}$ and $L_{t}^{2}$ may be presented then as:
+
+$$ L_{t} = \alpha_{m} \cdot L_{i} + \alpha_{m} \cdot f_{m} * L_{i} $$
+
+where $\alpha_{m}$ = attenuation due to Fresnel coefficients, and extinction coefficients in contaminant layer. $f_{m}$ is our convolution that contains phase function, exponential and cosine attenuation. 
+
+In summary, we have analyzed how light moves through the a one-way mirror with a contaminant layer. In the next section, we analyze how light will reach the camera when the mirror is in the box. 
+
+
+[Click here](../index.html) to navigate back to home page.
+
+
+Mirror in Box Alone, White Cloth Covered/Removed
+--------------------------------------------------------------------------------
+We will begin by looking at the mirror alone as in Figure [mirrorNoCloth]. The white cloth is removed. The camera is behind the one-way mirror. The mirror is placed as shown in Figure [mirrorNoCloth].
+
+![Figure [mirrorNoCloth]: Mirror without the white cloth](../assets/box_stage3.png width="300px")
+
+In this case, we are only interested in light coming from the scene, as light from the projector is blocked. Essentially, we are interested in the scene shown in Figure [mirrorAlone]. We will ignore the shadows created by the top of the box jutting out over the mirror.
+
+![Figure [mirrorAlone]: Mirror Alone](../assets/box_stage3b.png)
+
+ Let $L_{o}$ be the radiance that would reach the camera __without__ the mirror box in the way. $L_{o}$ is composed of two kinds of radiance: 
+
+1. Radiance from scene objects (green rays in Figure [mirrorAlone])
+2. Radiance from scene lights (yellow-green rays in Figure [mirrorAlone])
+
+Hence, the irradiance received by the camera, $L_{m}$ is simply $L_{m} = L_{o}$ . Call the image formed by this radiance as $I_{original}$ as done above in the introduction. *This is recorded from the scene.* 
+
+Now, assume the camera is encased in the mirror box. Assume also that the one-way mirror is **not** in front of the camera. The irrandiance at the camera will be attenuated *only by the box*. As we are ignoring shadows, assume the box introduces a constant attenuation of $\alpha_{box}$. Hence the radiance reaching the mirror is $\alpha_{box} \cdot L_{o}$. 
+
+The one-way mirror reflects most of the light reaching it. As described above, we assume mirror has a thin contaminant layer laying on top of the mirror. Hence, light from the scene that is not reflected will not only be attenuated by $\alpha_{m}$ but also scattered by a convolutive function, $f_{m}$. 
+
+Hence, the radiance received by the camera with the one-way mirror in front of the camera is: 
+
+$$ L_{m} = ( \alpha_{m} \cdot \alpha_{box} ) \cdot L_{o} + ( \alpha_{m} \cdot \alpha_{box} ) \cdot (L_{o} * f_{m} ) $$
+
+We can rewrite the equation above as:
+
+$$ L_{m} = \alpha \cdot L_{o} +  \alpha \cdot (L_{o} * f_{m} ) $$
+
+where $\alpha = \alpha_{m} \cdot \alpha_{box}$.
+
+In summary, we have analyzed how light moves through the mirrorbox to the camera, transmitting through a one-way mirror with a contaminant layer. In the next section, we analyze how light will reach the camera when the top of the mirrorbox has a white, thin cloth placed at the top of the mirrorbox. 
+
+
+[Click here](../index.html) to navigate back to home page.
+
+
+
+Mirror in Box, with White Cloth in Place -- All intuition
+--------------------------------------------------------------------------------
+Assume, the top of the mirror box in Figure [mirrorAlone] that juts out over the mirror is removed. A white cloth replaces it. This is shown in Figure [mirrorAlone2]. Any figures in this work can be made larger by opening it in a new tab. 
+
+As stated above, the white cloth is the projection surface. The projector forms its image on the cloth. This image is reflected unto the mirror. The mirror reflects the received image to the scene. 
+
+
+![Figure [mirrorAlone2]: Mirror Box](../assets/box_stage4c.png)
+
+
+In this system, we model the cloth as a diffusing system. We will assume that light transmitted through the white cloth is diffused, and colored white. 
+
+Assume the diffuse transmission is isotropic. Hence, the cloth scatters light equally in all directions. We are interested in the forward scattering component of this transmission. Once again, assume the diffusion effect on incoming radiance is convolutive, represented by function $f_{cloth}$. Furthermore, assume that some fraction $\alpha_{cloth}$ of light passes through the white cloth, while the others pass straight to the mirror. This fraction is equal to the attenuation \alpha_{box} from above. 
+
+Hence, our light model becomes:
+
+
+$$ L_{m} = \alpha_{m}(1 - \alpha_{box}) \cdot L_{o} * f_{cloth} * f_{m} +  
+\alpha_{m}(1 - \alpha_{box}) \cdot L_{o} * f_{cloth} +  
+( \alpha_{m} \cdot \alpha_{box} ) \cdot L_{o} + 
+( \alpha_{m} \cdot \alpha_{box} ) \cdot (L_{o} * f_{m} ) $$
+
+The terms are as follows:
+
+1. $\alpha_{m}(1 - \alpha_{box}) \cdot L_{o} * f_{cloth} * f_{m}$ : fraction of incoming radiance $Lo$ ($1- \alpha_{box}$) that is diffused by the cloth ($f_{cloth}$). The diffused radiance passes through the mirror where it is attenuated ($\alpha_{m}$) and scattered ($f_{cloth}$). 
+
+2. $\alpha_{m}(1 - \alpha_{box}) \cdot L_{o} * f_{cloth}$: fraction of incoming radiance $Lo$ ($1- \alpha_{box}$) that is diffused by the cloth ($f_{cloth}$). The diffused radiance passes through the mirror where it is attenuated only ($\alpha_{m}$). 
+
+3. $( \alpha_{m} \cdot \alpha_{box} ) \cdot L_{o} + ( \alpha_{m} \cdot \alpha_{box} ) \cdot (L_{o} * f_{m} )$: fraction of incoming radiance $L_{o}$ ($\alpha_{box}$) that does not pass through the cloth. The radiance passes through the mirror where it is attenuated and scattered as previously described. 
+
+Collecting terms, we have:
+
+$$ L_{m} = \alpha \cdot L_{o} + \alpha_{1} (\cdot L_{o} * f_{cloth}) + \alpha (\cdot L_{o} * f_{m}) + \alpha_{1} (\cdot L_{o} * f_{cloth} * f_{m}) $$
+
+where $\alpha = \alpha_{m} \cdot \alpha_{box}$, $\alpha_{1} = \alpha_{m} - \alpha_{m} \cdot \alpha_{box}$.
+
+
+The image received at the camera is proportional to te incoming radiance. Hence, we can say the image received at the camera, $I_{mirror} = I_{m} = \int_{surface} L_{m}$. Similarly, let the original, desired image be $I_{original} = I_{o} = \int_{surface} L_{o}$.
+
+
+In summary, I have derived *a model* for the transport of light in my system, **without the projector on**. The model with the projector will be described in a followup post. My intuitions lean toward the fact that the projector light, at the cloth, will be much more than that from the environment. As such, much more of the light of the projector will pass through the cloth. Much more projector light will be reflected to the scene which a user can observe. Similarly, much more projector light will be transmitted through the mirror to the camera in the box causing more artifacts in the final image. All these lead to interesting problems when looking at the system from the scene, or from the camera. 
+
+In the next section, I make a few assumptions to simplify the current model **without the projector on**. In particular, I introduce what images can be produced by the system, and what images may be used for calibration. This is heavily based on what images I can realistically ask a lay person to collect, for the purpose of inverting this process.
+
+
+[Click here](../index.html) to navigate back to home page.
+
+
+System Images with a Microsoft Kinect v2 and a Possible Solution
+-----------------------------------------------------------------------------------
+
+Assuming the same scene, we can collect 1 or 2 images without the mirror in the way. This is shown in Figure [withoutMirror]. Let us call these images $I_{o}$.
+
+
+![Figure [withoutMirror]: Image without mirror in way ](../assets/colorKinect_before1.png width="400px")
+
+
+In a similar way, we can also collect 1 or 2 images of same scene, with the mirror in the way, and the white cloth uncovered. This is depicted in Figure [withMirror]. Let us call these images $I_{m}$. As I said, at present the projector is not on. 
+
+
+![Figure [withMirror]: Image with mirror in way ](../assets/colorKinect_after1.png width="400px")
+
+The goal of the model is to guide the restoration of $I_{m}$ through a calibration and online process. First, we must simplify the model. 
+
+
+The relationship between $I_{m}$ and $I_{o}$ as derived is: 
+
+$$ I_{m} = \int_{M} \alpha \cdot L_{o} + \int_{C} \alpha_{1} \cdot ( L_{o} * f_{cloth} ) + \int_{M}\alpha \cdot ( L_{o} * f_{m} ) + \int_{M}\int_{C} \alpha_{1} \cdot ( L_{o} * f_{cloth} * f_{m} ) $$
+
+where M stands for mirror surface, and C stands for cloth surface. Integral is also taken over all frequencies, but we ignore that as it does not change the model.
+
+The model is too big. We need to make it simpler. Here I borrow heavily from [#Gu_09_dirtylens]. The math needs to be worked out and explained so bear with me. Help and guidance is appreciated. 
+
+I make a few assumptions:
+
+1. Assume that $f_{cloth}$ and $f_{m}$ are fixed for a given scene. 
+2. Assume also that $L_{o}$ through the cloth is same for all points on the cloth. This is reasonable given that we assume the box operates in an indoor environment. Light will be overhead. A user will seat in front of the mirror. Hence, light from the environment will be dominant over the cloth. Hence, $\int_{C} L_{o}$ over all directions will be constant. 
+3. Assume that $f_{cloth}$ depends on attenuation of the material only. This is because we assume the material is diffuse, radiating light of same energy in all directions. Hence, $f_{cloth} = f_{cloth}(\alpha_{cloth}(x,y))$, where \alpha_{cloth} is locally constant.
+4. Assume that $f_{m}$ depends on attenuation of the material only. In this case, contamination layer is optically thin, and $f_{m}$ will not vary much by radiance direction in or out of the contaminant layer.  
+
+Then, we have the following updates to the equations:
+ 
+$$ \int_{C}\alpha_{1} \cdot (L_{o} * f_{cloth}) \approx \alpha_{1} \cdot f_{cloth}( \alpha_{1} )\int_{C} L_{o} \\
+												 = \alpha_{1}(x,y) \cdot c \cdot f_{cloth}( \alpha_{1}(x,y) )$$
+
+where *c* is constant defined as $\int_{C} L_{o}$, and $\alpha$ is spatially varying though locally constant.
+
+Similarly, 
+
+
+$$ \int_{M}\int_{C} \alpha_{1} \cdot ( L_{o} * f_{cloth} * f_{m} ) = \alpha_{1}(x,y) \cdot \int_{M} c \cdot f_{cloth}( \alpha_{1}(x,y) ) * f_{m} \\
+                                                                   = \alpha_{1}(x,y) \cdot c \cdot f_{cloth}( \alpha_{1}(x,y) ) \int_{M} f_{m} \\
+                                                                   = \overline{\alpha(x,y)} \cdot c $$
+
+ where $\overline{\alpha(x,y)}$ = $\alpha_{1} \cdot (f_{cloth} * f_{m})$.
+
+ For the mirror, we cannot assume incoming radiance is same for all directions. However, due to 4, we can write: 
+
+ $$ \int_{M}\alpha \cdot ( L_{o} * f_{m} ) = \alpha(x,y) \cdot f_{m}(\alpha (x,y)) \cdot \int_{M} L_{o} \\
+ 										   = \alpha(x,y) \cdot f_{m}(\alpha (x,y)) \cdot I_{o} $$
+
+
+
+Hence, our equation now is:
+
+$$I_{m} = \alpha(x,y) \cdot I_{o} + \alpha_{1}(x,y) \cdot c \cdot f_{cloth}( \alpha_{1}(x,y) ) + \overline{\alpha(x,y)} \cdot c + \alpha(x,y) \cdot f_{m}(\alpha (x,y)) \cdot I_{o} \\
+
+		= I_{o} \cdot (\alpha(x,y) + \alpha(x,y) \cdot f_{m}(\alpha (x,y))) + c \cdot (\alpha_{1}(x,y) \cdot f_{cloth}( \alpha_{1}(x,y) + \overline{\alpha(x,y)}) \\
+
+		=  I_{o} \cdot \gamma (x,y) + c \cdot \beta (x,y)$$
+
+		where $\gamma(x,y)$ is defined as:
+
+		$$\gamma(x,y) = \alpha(x,y) + \alpha(x,y) \cdot f_{m}(\alpha (x,y))$$ 
+
+		and $\beta(x,y)$ is defined as:
+
+		$$\beta(x,y)= \alpha_{1}(x,y) \cdot f_{cloth}( \alpha_{1}(x,y) + \overline{\alpha(x,y)}$$.
+
+Here $\gamma(x,y)$ is the attenuation map, operating on the incoming radiance $L_{o}$ from objects in the scene. $\beta(x,y)$ is the added light, derived from scattering of room light as it moves through the cloth.
+
+
+**Note**: I need to mathematically prove these assumptions I have made. This I will leave for another day. In the next section, I will sketch 2 solution strategies for this work: a machine learning based solution, and a physics-based model (just derived). 
+
+
+
+[Click here](../index.html) to navigate back to home page.
+
+
+
+Solution Strategy 1: Machine Learning Based
+----------------------------------------------------------------------------------
+Collect N image pairs $(I_{m}, I_{o})$. N is small, between 1 to 5. N is small as I cannot ask a lay person to take too many images for calibration. $I_{o}$ are images of the scene without the mirror box in the way. $I_{m}$ are images of the scene with the mirror box in the way. Using a regression, find the relationship between patches in original, to patches in mirror images. This is my weekend stop. Results tomorrow. 
+
+
+Solution Strategy 2: Physics based model
+----------------------------------------------------------------------------------
+The physics based model offers some intuition on what should be happening in the image. All the math above can be boiled down to the following intuitive statements. A lot of handwaving goes into this but it holds some merit. 
+
+First, without the box in the way, the image captured by the camera is described as 
+
+$$I_{o} = I_{obj} + I_{ambient light}$$
+
+Second, with the box in the way, and no mirror in the way, the intensity of the image at the camera
+is uniformly decreased by $\alpha$, giving:
+
+$$I_{m} = \alpha \cdot I_{o} $$
+
+This assumes constant/steady state scattering from sides of the box.
+
+Third, with the box in the way, and a glass slab (no mirror), the intensity of the image at the camera
+is uniformly decreased by the Fresnel transmission coefficents of glass. These are constant for the glass, 
+especially as clear glass does not scatter light, but transmits most of input. Hence, I_{m} is :
+
+$$I_{m} = \alpha \cdot I_{o} $$ where $\alpha$ incorporates the Fresnel effects of the glass and the attenuation by box
+
+Fourth, with the box in the way, and a one-way mirror (a glass slab with a thin sparse silver/aluminium coating),
+the metal absorbs a lot of the incoming light. Hence, only a percentage, usually constant, of the incoming light
+hits the glass slab, and gets transmitted as in Third above. Thus, we have:
+
+$$I_{m} = \alpha \cdot I_{o} $$ where $\alpha$ incorporates the constant attenuation due to metal absorbtion of light.
+
+Fifth, with the box in way, and a dirty one-way mirror in the way, the received intensity at the camera will be:
+
+1. Attenuated by isolation in box $\alpha$. 
+2. Attenuated by fresnel coefficents for glass $\alpha$
+3. Attenuated by the silvering of the mirror due to absorbtion of light by metal $\alpha$
+4. Blurred by layer of contaminant on the glass slab. This causes forward scattering, i.e. light scattered forward at 
+small angles from the incoming ray. The result is a blurring effect around, and bleeding of intensity from bright to dark regions,
+dark to light regions. 
+
+Concantenating the attenuation factors, and noticing that the blurring operates on the attenuated light, we have:
+
+$$I_{m} = \alpha \cdot I_{o} + (\alpha \cdot I_{o}) * f $$
+
+f is the blur kernel of the scattering process, and $\alpha$ is the attenuation of incoming radiance, $*$ is convolution
+
+Finally, with the mirror box in the way, and the white cloth in place above the mirror, the received intensity at the camera will be increased. This is similar to action of opening a window in a dark room, even if the window is covered with a gauzy white sheet. The cloth is assumed to act as a diffuser. Hence, the received intensity at the camera is:
+
+1. Attenuated by isolation in box $\alpha_{1}$. 
+2. Attenuated by fresnel coefficents for glass $\alpha$
+3. Attenuated by the silvering of the mirror due to absorbtion of light by metal $\alpha$
+4. Blurred by layer of contaminant on the glass slab. This causes forward scattering, i.e. light scattered forward at small angles from the incoming ray. The result is a blurring effect around, and bleeding of intensity from bright to dark regions, dark to light regions. 
+5. Increased by diffused ambient light from the white cloth $\alpha_{2}$ where $\alpha_{2} + \alpha_{1} \lt 1$. Some ambient light that does not pass through the front of box will enter through the cloth. The diffusion function is $f_{cloth}$.
+
+Hence, breaking input intensity back into object and ambient light, we have
+
+$$I_{m} = \alpha \cdot \alpha_{1} \cdot I_{obj} + (\alpha \cdot \alpha_{1} \cdot I_{obj}) * f + \\
+		  \alpha \cdot \alpha_{1} \cdot I_{ambient} + (\alpha \cdot \alpha_{1} \cdot I_{ambient}) * f + \\
+		  (\alpha \cdot \alpha_{2}) \cdot I_{ambient} * f_{cloth} + (\alpha \cdot \alpha_{2}) \cdot I_{ambient} * f_{cloth} * f$$
+
+Hence, using definition of $I_{o}$ above, we have:
+
+$$I_{m} = \alpha \cdot \alpha_{1} \cdot I_{o} + (\alpha \cdot \alpha_{1} \cdot I_{o}) * f + \\
+		  (\alpha \cdot \alpha_{2}) \cdot I_{ambient} * f_{cloth} + (\alpha \cdot \alpha_{2}) \cdot I_{ambient} * f_{cloth} * f$$
+
+Assume $f$ and $f_{cloth}$ have constant effects. Assume also $\alpha$ is spatially varying. Then we can do:
+
+$$I_{m} = \alpha^{o} \cdot I_{o} +  \alpha^{am} \cdot I_{ambient} $$
+
+where $\alpha^{o}$ collects attenuation factors on object light, while $\alpha^{am}$ collects attenuation factors on ambient light. 
+
+
+This is similar to the model derived in earlier sections. 
+
+Now, using the physical model, we can see that the illumination from the objects in the scene is attenuated by the box ($\alpha^{o} \cdot I_{o}$). However, the image at camera will see increased intensity due to the action of the diffused ambient light ($\alpha^{am} \cdot I_{ambient}$). The question now is what can I do to derive these $\alpha$ terms. 
+
+Using the work in [#Gu_07_dirtyglass][#Gu_09_dirtylens][#He_darkChannel_11], we can surmise a few things. I have original, unmodified image $I_{o}$. I also have mirror image $I_{m}$. Then from the physical model, the brightest pixels in $I_{m}$ are composed of ambient scattering and original light. However, darkest pixels in $I_{m}$ are composed of mostly ambient light. That is:
+
+$$I^{max}_{m} = \alpha^{o} \cdot I^{max}_{o} +  \alpha^{am} \cdot I^{max}_{ambient}$$
+$$I^{min}_{m} =  \alpha^{o} \cdot I^{min}_{o} +  \alpha^{am} \cdot I^{min}_{ambient}$$ 
+
+Assume that $I^{min}_{o}$, the dark pixels of original image, are mostly zero. Then any intensity observed at those pixels in $I^{min}_{m} must be due to ambient light. That is
+
+$$I^{min}_{m} \approx  \alpha^{am} \cdot I^{min}_{ambient}$$ 
+
+
+So far so good. I'll stop here. I have experiments to run to determine what I can do with this. 
+
+
+
+[Click here](../index.html) to navigate back to home page.
+
+
+
+
+**Bibliography**:
+[#Gu_07_dirtyglass]: Gu, Jinwei, et al. "Dirty glass: Rendering contamination on transparent surfaces." Proceedings of the 18th Eurographics conference on Rendering Techniques. Eurographics Association, 2007.
+
+[#Gu_09_dirtylens]: Gu, Jinwei, et al. "Removing image artifacts due to dirty camera lenses and thin occluders." ACM Transactions on Graphics (TOG). Vol. 28. No. 5. ACM, 2009.
+
+[#Hanrahan_93]: Hanrahan, Pat, and Wolfgang Krueger. "Reflection from layered surfaces due to subsurface scattering." Proceedings of the 20th annual conference on Computer graphics and interactive techniques. ACM, 1993.
+
+[#He_darkChannel_11]: He, Kaiming, Jian Sun, and Xiaoou Tang. "Single image haze removal using dark channel prior." IEEE transactions on pattern analysis and machine intelligence 33.12 (2011): 2341-2353.
+
+
+
+
+<!-- Markdeep: --><style class="fallback">body{visibility:hidden;white-space:pre;font-family:monospace}</style><script src="markdeep.min.js"></script><script src="https://casual-effects.com/markdeep/latest/markdeep.min.js"></script><script>window.alreadyProcessedMarkdeep||(document.body.style.visibility="visible")</script>
