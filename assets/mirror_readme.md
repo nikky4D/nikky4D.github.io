@@ -1,0 +1,1 @@
+Clip art plants: http://www.webweaver.nu/clipart/plants.shtml
