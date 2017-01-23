@@ -1,0 +1,54 @@
+                <meta charset="utf-8" emacsmode="-*- markdown -*-">
+                            						**Setting up MatconvNet: A quick Note**
+                            							*Nkiruka Uzuegbunam, Jan 22, 2017*
+
+
+
+MatconvNet and Compiling under Ubuntu 16
+=================================================================
+
+I setup MatConvNet for quick test in deep neural networks. I ran into a few problems and these solutions worked for me:
+
+Warnings:
+--------------------------------
+ During compilation, Matlab kept giving me the following warning, even though the compilation was successful. I ignored it and kept going.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Warning: You are using gcc version '5.4.0'. The version of gcc is not supported. The version currently supported 
+with MEX is '4.9.x'. For a list of currently supported compilers see: 
+http://www.mathworks.com/support/compilers/current_release. 
+> In vl_compilenn>mex_link (line 547)
+  In vl_compilenn (line 498) 
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Error:
+----------------------------------
+After compilation, I tried to run a sample. At this point, MATLAB gave an error involving not finding the right libstdc++.so.6 and some GLIBCXX error thing. After searching the web, I added this line to ./bashrc. 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/libstdc++.so.6
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+That did not work on sourcing bashrc, closing terminals, and opening terminals to restart matlab.
+
+Then, I tried another idea I saw. It involved downloading libstdc and installing that. I then added the following to ./bashrc
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+LD_LIBRARY_PATH=/usr/lib64/libstdc++.so.6
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+As before, it did not work. 
+
+
+Finally, creating a softlink from the version in my ubuntu to /usr/local/MATLAB/R2016b/bin/glnx64/. The idea came from http://askubuntu.com/questions/575505/glibcxx-3-4-20-not-found-how-to-fix-this-error. So, from within the folder in matlab that should contain the libraries, I did:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+ sudo ln -s /usr/lib/x86_64-linux-gnu/libstdc++.so.6 ./libstdc++.so.6
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+That finally worked for my Matconvnet sample. The warning with compilation persists however. 
+
+
+<!-- Markdeep: --><style class="fallback">body{visibility:hidden;white-space:pre;font-family:monospace}</style><script src="markdeep.min.js"></script><script src="https://casual-effects.com/markdeep/latest/markdeep.min.js"></script><script>window.alreadyProcessedMarkdeep||(document.body.style.visibility="visible")</script>
