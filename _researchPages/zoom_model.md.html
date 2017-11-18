@@ -1,82 +1,154 @@
                 <meta charset="utf-8" emacsmode="-*- markdown -*-">
-                  **Contrast Enhancement Model for a Two-way Mirror**
+                  **Simulating a plane mirror using 2D images for the TWM**
                             		Nkiruka Uzuegbunam
 
-Filming through a Two-way Mirror: Contrast Enhancement model
+Virtual Plane Mirror simulation using 2D color images
 ===============================================================================
 
-This post describes my research into enhancing images taken through a Two-way mirror (TWM).
-In particular, I seek to derive from first principles, the radiance hitting the camera from the transparent side of a TWM. This involves modeling the transmission of light and also the effects of haze in the degredation of the image.
+This post describes a method for simulating a plane mirror using 2D images of the background in the robotic mirror setup described in earlier posts. I detail the mathematics, 
+show some simulation results, and discuss methods of improvement in various aspects of the system. In the end, the work boils down to appropriately scaling the background according
+to the user's distance from the mirror. 
 
 [Click here](../index.html) to navigate back to home page.
 
-What are TWMs and how do they work?
+Previous Work in virtual mirror simulation
 -------------------------------------------------------------------------------
-One-way/Two-way mirrors (TWMs) are partially reflective and partially transparent constructions, typically composed of a transparent medium, thinly coated on one side by a reflective medium. Often used in security, entertainment, observation, they are designed to provide privacy in various situations. 
+Mirrors are used in many different applications, ranging from everyday personal care to medical use. However, they are not interactive. Virtual mirrors are interactive mirrors. Typically, they consist of a display with static depth or rgb cameras. The cameras track the user and/or the environment, creating a reflection based interaction. Often, the user views their reflections augmented with virtual objects. For instance, in virtual mirrors for fashion, the virtual objects are sunglasses, clothes, shoes, etc. In medicine, the virtual objects could be health indicators of some sort. 
 
-Unlike plane mirrors (common everyday mirror), TWMs are generally designed to allow light to pass equally in both directions. TWM will appear like a plane mirror when one side of the mirror is *much more* brightly lit than the other side. Most TWM vendors state that the reflective side (i.e. the metal coated side) should face the brightly lit room, while the transparent layer faces the darker room. The reason for this can be seen in the figure below. Further information as to the physics and uses of TWMs can be found in my earlier post, [here](one_way_mirror.md.html). 
+However, many virtual mirror display systems do not strive to be true mirrors, depicting a correct reflection based on the user's perspective. This can reduce the realism in the display. Several previous works have tackled creating proper reflection in various virtual mirror systems. [#Francois13] created a handheld virtual mirror as a prototype for geometrically correct reflections in virtual mirrors. Ignoring the user's background, they used a single static rgb camera, and magnetic sensors tracking the user's location to create their mirror reflections. With the advent of depth cameras, [#Shen13], [#Shen12], [#Straka11], and [#Su17] create virtual mirror reflections with a network of one or more depth and rgb cameras, with [#Su17] creating mirror reflections in non-planar mirror settings. [#Lee17] is a direct extension of the work of [#Francois13] in onscreen reflections as a navigation tool in camera-based systems.
 
+In this work, we extend the work of [#Francois13] in two important ways. First, we take the user's interaction with the background as an important component of interacting with a mirror device. Second, we introduce a novel robotic system that tracks the user's location. 
 
-![Figure [model1]: Essential operation of a TWM. Picture obtained from TWM Vendor site: http://www.twowaymirrors.com/](../assets/how-does-a-two-way-mirror-work.jpg) 
-
-
-Degredation of Image taken through a TWM
+Estimating the Mirror Reflection
 -------------------------------------------------------------------------------
-Consider the scenerios depicted below. In the first scenerio, Figure [model2], the camera views the scene without any obstructions. It is able to receive all the light from the object and from the environment. Let us call the radiance of the object, i.e, the transmitted light from the object, $L_{T}$. *I ignore radiance from the environment. I don't know if I should model it. I will update as I need to. * 
+The system of Francois and Kang [#Francois13] proposed a camera and screen (with magnetic sensors for user position tracking) for simulating a virtual mirror with geometrically correct reflections. In particular, their model is derived in four phases based on three key assumptions. In the first phase, objects are mapped from the 3D world to the mirror plane. Let an object be located at point P in the virtual viewer's coordinate system, Figure [virtualViewpt]. P is the point $[ X, Y, Z ]^\T$. It is mapped to a point, p, on the mirror surface $[xp, yp, d]^\T$ where d is the orthogonal distance from the virtual viewer to the mirror 
+plane: 
 
-The radiance from the scene that hits the camera forms the image. Incoming radiance is termed irradiance, and let us call the irrandiance on the camera, hence, the image formed, $I\left(x\right)$. I make it dependent on the pixel location as different points on the camera receive different amounts of light. Thus, with no obstruction, the image formed will be:
+![Figure [virtualViewpt]: The virtual user's viewpoint from [#Francois13]](../assets/figure2_KangFrancois.png)
 
-$ I\left(x\right) \approx L_{T} $
+\begin{equation}
+ \begin{bmatrix}
+ X_p \\
+ Y_p \\
+ Z_p 
+ \end{bmatrix}
+ = 
+ \begin{bmatrix}
+ d & 0 & 0 & 0\\
+ 0 & d & 0 & 0 \\
+ 0 & 0 & 1 & 0
+ \end{bmatrix}
+ * 
+  \begin{bmatrix}
+ X \\
+ Y \\
+ Z \\
+ 1  
+ \end{bmatrix}
+\end{equation}
+
+Then $x_p = \frac{X_p}{Z_p} = \frac{d*X}{Z}$, and $y_p = \frac{Y_p}{Z_p} = \frac{d*Y}{Z}$
+
+In the second phase, objects are mapped from the camera's world view into the camera's imaging plane as shown in Figure [cameraViewpt]. Two key assumptions are made here: 1) the camera is assumed to be a pinhole camera and 2) the imaging plane of the camera is assumed to coincide with that of the mirror plane. As such, we have that a point $P_c = [ X_c, Y_c, Z_c ]^\T$ in the camera coordinate system, with origin at camera center, maps to the point $p_c = [x_{pc}, y_{pc}, f]^\T$. f is the focal length of the camera. 
+
+![Figure [cameraViewpt]: The camera's viewpoint from [#Francois13]](../assets/figure3_KangFrancois_a.png)
+
+\begin{equation}
+ \begin{bmatrix}
+ X_{pc} \\
+ Y_{pc} \\
+ Z_{pc} 
+ \end{bmatrix}
+ = 
+ \begin{bmatrix}
+ f & 0 & 0 & 0\\
+ 0 & f & 0 & 0 \\
+ 0 & 0 & 1 & 0
+ \end{bmatrix}
+ * 
+  \begin{bmatrix}
+ X_c \\
+ Y_c \\
+ Z_c \\
+ 1  
+ \end{bmatrix}
+\end{equation}
+
+Then $x_{pc} = \frac{X_{pc}}{Z_{pc}} = \frac{f*X_c}{Z_c}$, and $y_{pc} = \frac{Y_{pc}}{Z_{pc}} = \frac{f*Y_c}{Z_c}$
+
+The third phase consists of mapping the camera viewpoint to the virtual user's viewpoint. The key assumption here is that the image and virtual mirror planes coincide. Hence, the camera's origin is mapped to the virtual user's viewpoint via a simple translation $[t_x, t_y, t_z]^\T$ as seen in Figure [viewpt]. Then the point p in the virtual user viewpoint is related to the a point $P_c$ in the camera coordinate system as:
 
 
-![Figure [model2]: Light from object and environment reaches camera without obstruction](../assets/SceneWithoutMirror2.png)
+![Figure [viewpt]: The camera and virtual user's viewpoints from [#Francois13]](../assets/figure3_KangFrancois_b.png)
 
 
-In the second scenario, Figure [model3], the camera views the scene with the TWM in the way. I assume the camera faces the transparent side of the TWM. The object faces the reflective side of the TWM. 
+\begin{equation}
+  \begin{bmatrix}
+X_p \\
+ Y_p \\
+ Z_p 
+ \end{bmatrix}
+ = 
+ \begin{bmatrix}
+ d & 0 & 0 & 0\\
+ 0 & d & 0 & 0 \\
+ 0 & 0 & 1 & 0
+ \end{bmatrix}
+ * 
+  \begin{bmatrix}
+ X \\
+ Y \\
+ Z \\
+ 1  
+ \end{bmatrix}
+= 
+ \begin{bmatrix}
+ d & 0 & 0 & 0\\
+ 0 & d & 0 & 0 \\
+ 0 & 0 & 1 & 0
+ \end{bmatrix}
+ * 
+ \begin{bmatrix}
+ 1 & 0 & 0 & t_x\\
+ 0 & 1 & 0 & t_y \\
+ 0 & 0 & 1 & t_z \\
+ 0 & 0 & 0 & 1 
+ \end{bmatrix}
+ * 
+  \begin{bmatrix}
+ X_c \\
+ Y_c \\
+ Z_c \\
+ 1  
+ \end{bmatrix}
+\end{equation}
 
-![Figure [model3]: Light from object and environment reaches camera *after* passing through the TWM obstruction](../assets/SceneWithMirror.png)
+Then a point in the virtual user's mirror plane, $p = [x_p, y_p]^\T$, is defined as: 
+\begin{equation}
+x_p = \frac{X_p}{Z_p} = \frac{d*X}{Z} = \frac{d * (X_c + t_x)}{Z_c + t_z}, \\
+y_p = \frac{Y_p}{Z_p} = \frac{d*Y}{Z} = \frac{d * (Y_c + t_y)}{Z_c + t_z}
+\end{equation}
+
+In order to relate the point p in the virtual user's mirror plane to the point $p_c$ in the camera's image plane, it would be necessary to obtain 3D positions of each point in the environment. However, Francois and Kang [#Francois13] assume that as the user is the center of interest, and **not the background**, the world may be modeled as a plane parallel to the mirror plane, at the same distance as the user's viewpoint. This is termed Flat world assumption, and is shown in Figure [worldAsPlane]. Hence, the z-component of the camera coordinate system is fixed as $Z_c = f + d$. Thus, we relate p, to $p_c$ as: 
+
+![Figure [worldAsPlane]: Flat world assumption from [#Francois13]](../assets/figure5_KangFrancois.png)
+
+\begin{equation}
+x_p = \frac{X_p}{Z_p} = \frac{d*X}{Z} = \frac{d * (X_c + t_x)}{Z_c + t_z} = \frac{d * ( \frac{Z_c * x_{pc}}{f} + t_x)}{Z_c + t_z} =   \frac{d * ( \frac{ (f+d) * x_{pc}}{f} + t_x)}{ (f+d) + t_z}\\
+y_p = \frac{Y_p}{Z_p} = \frac{d*Y}{Z} = \frac{d * (Y_c + t_y)}{Z_c + t_z} = \frac{d * ( \frac{Z_c * y_{pc}}{f} + t_y)}{Z_c + t_z} =   \frac{d * ( \frac{ (f+d) * x_{pc}}{f} + t_x)}{ (f+d) + t_z}
+\end{equation}
 
 
-As such, we have that the image formed depends on some function of the radiance it receives from the object, with some added noise:
-
-$ I\left(x\right) = {f}\left( L_{T} \right) + noise $
-
-The question is: *what is this function?*
+Advantages of the RoboMirror system
+-------------------------------------------------------------------------------
+The three key assumptions of the Francois and Kang [#Francois13] system is that 
 
 
-For my scenerio, the before and after photos of a static scene taken without, and with the TWM in place are shown below. In top row are images taken with right camera of a stereo camera. In the middle row are images taken with the left camera of a stereo camera. In the last two rows are images taken with the Microsoft Kinect v2 color camera.
+Estimating the distance of user to Mirror
+-------------------------------------------------------------------------------
 
 
-![Figure [model4a]: Left Image without TWM](../assets/camera1_stereo_before1.png width="300px" border="1")  ![Figure [model4b]: Left Image with TWM](../assets/camera1_16.png width="300px" border="1")
-![Figure [model4c]: Right Image without TWM](../assets/camera2_stereo_before2.png width="300px" border="1")  ![Figure [model4d]: Right Image with TWM](../assets/camera2_8.png width="300px" border="1")
-![Figure [model4e]: Kinect Image without TWM](../assets/colorKinect_before1.png width="300px" border="1")  ![Figure [model4f]: Kinect Image with TWM](../assets/colorKinect_after1.png width="300px" border="1")
-![Figure [model4g]: Kinect Image without TWM](../assets/colorKinect_before2.png width="300px" border="1")  ![Figure [model4h]: Kinect Image with TWM](../assets/colorKinect_after2.png width="300px" border="1")
 
-
-From right column of Figure 4 above, we can see two things across all images:
-
-1. The image is consistently darker. This implies a reduction in amount of light reaching the image. It is darker for stereo camera than for the kinect camera. In addition, image of the torch in top 3 figures is different for the kinect camera (third row) than for the stereo camera (top 2 rows above). The saturated pixels about the torch in third row appears to be larger in the after image. This is in contrast to stereo images. In the top two rows, the saturated pixels about the torch in the stereo images appear to reduce in area in the after image. This suggests that the stereo camera employs an auto correction function, perharps contrast equalization function. In contrast, the Microsoft Kinect does not employ any correction algorithms (as far as I know). Hence, in order to capture the true function affecting the irradiance of the camera, I need to use a camera with no auto correction algorithms. Thus, I am ignoring data collected with the stereo camera and using only the data from Kinect color camera for reconstruction. 
-
-2. The image is hazy, appearing blurred in some places (Figure [model4f], Figure [model4h]). In addition, as stated in first point, the TWM appears to have increased the number of saturated pixels overall in the image (see Figure [model5] below). This implies some sort of convolution and some noise. For noise, I am thinking some kind of salt-and-pepper noise given the speckle looking nature of the picture. For the convolution, it may be a directional blur (moving from bottom left to top right). I think this is plausible given the introduction of a new light streak running across the blue folder and the shape of the reflection on the side of the red folder.
-
-3. Finally, *this* TWM appears to have some deterministic artifacts (not random) as evidenced by the single white pixel in Figure [model5] that appears in Figure [model4f] and Figure [model4h]. If it was random, the bright spot would not be in the same location for two different pictures. This implies I should either clean the TWM or it has some structural qualities that produce that each time. I will need to verify this by taking more images. 
-
-![Figure [model5]: Saturated pixels, blurring, speckle caused by TWM in kinect images](../assets/mirrorDefects.png)
-
-
-In order to decipher what is happening and what to do, I researched, and am researching, several different lines of work:
-
-0. Contrast Enhancement: 
-
-	a. I inherited this project from my colleague, Yuqi Zhang. She tried various options such as adaptive histogram, CLAHE histogram method, and histogram equalization methods available in MATLAB $^{TM}$, and OpenCV. She used a model of the form, $ I\left(x\right) = g (f * L) $. She obtained g by a polynomial fit of the points derived from imaging constant amplitude pictures. Then she obtained the parameters of f using a regression. She achieved much better enhancement results than CLAHE, and other adaptive histogram methods. However, it is a long and tedious process that, I believe, can be improved upon with current research in image reconstruction. In particular, I was interested in areas that employed a prior in the image enhancement process, i.e., where some (input, output) pairs were available. 
-
-1. Weiner Filtering: 
-
-	a. Model: I looked at the problem like it was Channel estimation in signal processing. In this case, we know input, X, we know the output, Y, and we want the inverse of the channel that produced Y. That is, $ Y = H ( X ) $, where H is the channel operating on X. The inverse, $H^{-1}$, should, in theory, produce a clean Y. So, in general, doing this: $ fft(H) = \frac{fft(Y)}{fft(X)} $ should get the channel (take an average over several inputs). Then an $H^{-1}$ should pop out in theory. Theory always needs to be refined with practice in the particular problem. That did not work out so well. Going to a full Weiner filter as described in many Image Processing texts did not work out either. So, I moved on to see what were the present literature on various forms of image restoration. First, I looked at deblurring since the TWM images have a hazy looking (handwavyyy) quality.
-
-2. Deblurring (Blind or Non-Blind deconvolution): 
-
-	a. Model :  $ f(x) = k * I(x) + noise $ . Noise is usually Guassian, and k is the convolutional kernel. If known, it is Non-Blind deconvolution, else it is Blind deconvolution. This model did not fit, at first, because the TWM images did not appear blurred as the images in many of the papers I read. In addition, many of these papers talked of blurring reconstruction as recovering an image that had undergone camera motion. My system had no camera motion. This discouraged me and led me to look to other processes. This led me to hazing. 
 
 Summary
 -------------------------------------------------------------------------------
@@ -85,13 +157,18 @@ In this work, we have explained how a TWM works. A TWM, designed for privacy, re
 
 [Click here](../index.html) to navigate back to home page.
 
+**Bibliography**:
+[#Francois13]: François, A. R., and Kang, E. Y. (2003, July). A handheld mirror simulation. In Multimedia and Expo, 2003. ICME'03. Proceedings. 2003 International Conference on (Vol. 2, pp. II-745). IEEE.
 
+[#Lee17]: Lee, J. I., Kim, S., Fukumoto, M., & Lee, B. (2017, October). Reflector: Distance-Independent, Private Pointing on a Reflective Screen. In Proceedings of the 30th Annual ACM Symposium on User Interface Software and Technology (pp. 351-364). ACM.
 
- 
+[#Shen13]: Shen, J., Su, P. C., Cheung, S. C. S., & Zhao, J. (2013). Virtual mirror rendering with stationary rgb-d cameras and stored 3-d background. IEEE Transactions on Image Processing, 22(9), 3433-3448.
 
+[#Shen12]: Shen, J., Cheung, S. S., & Zhao, J. (2012, December). Virtual mirror by fusing multiple RGB-D cameras. In Signal & Information Processing Association Annual Summit and Conference (APSIPA ASC), 2012 Asia-Pacific (pp. 1-9). IEEE.
 
+[#Straka11]: Straka, M., Hauswiesner, S., Rüther, M., & Bischof, H. (2011). A free-viewpoint virtual mirror with marker-less user interaction. Image Analysis, 635-645.
 
-
+[#Su17]: Su, P. C., Xu, W., Shen, J., & Cheung, S. C. S. (2017, July). Real-time rendering of physical scene on virtual curved mirror with RGB-D camera networks. In Multimedia & Expo Workshops (ICMEW), 2017 IEEE International Conference on (pp. 79-84). IEEE.
 
 
 
