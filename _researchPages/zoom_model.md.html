@@ -141,7 +141,20 @@ y_p = \frac{Y_p}{Z_p} = \frac{d*Y}{Z} = \frac{d * (Y_c + t_y)}{Z_c + t_z} = \fra
 
 Advantages of the RoboMirror system
 -------------------------------------------------------------------------------
-The three key assumptions of the Francois and Kang [#Francois13] system is that 
+The three key assumptions of the Francois and Kang [#Francois13] system are 1) camera is a pinhole model, 2) camera's imaging plane coincides with the mirror plane and 3) the world is on a flat plane parallel to the mirror plane, at a fixed distance z = f + d.
+
+In order to create an accurate reflection, the third assumption must be violated. This creates a unique problem. If a 3D model of the background is not available, then we must modify a 2D background adequately to create a realistic mirror reflection. The novelty of the robomirror system provides some simplifications that make it easier.
+
+The robomirror system consists of a camera attached to a robotic arm, capable of left-right, top-bottom (x-y) motion. The camera and arm are placed behind a one-way mirror. The user sits in front of the one-way mirror. As the user moves, the camera tracks the user's face location. The robotic arm moves in such a manner that the user's face is always in the center of the image. Hence, the **first** advantage of the robomirror system is the robomirror system tracks the x-y movements of the user. This simplifies the equation above by setting $t_x = t_y = 0$. The final translation parameter, $t_z$, that relates the camera's z-location to that of the virtual user's must still be found. Thus, our reflection equation is now:
+
+\begin{equation}
+x_p = \frac{X_p}{Z_p} = \frac{d*X}{Z} = \frac{d * (X_c + t_x)}{Z_c + t_z} = \frac{d * ( \frac{Z_c * x_{pc}}{f})}{Z_c + t_z}    \\
+y_p = \frac{Y_p}{Z_p} = \frac{d*Y}{Z} = \frac{d * (Y_c + t_y)}{Z_c + t_z} = \frac{d * ( \frac{Z_c * y_{pc}}{f})}{Z_c + t_z} 
+\end{equation}
+
+The second advantage of the robomirror system is that it is designed to work when the user is in an **interaction zone**. This means that 1) the user's face is directly in front of the one-way mirror, and 2) the user's face is within a set distance from the camera for optimal interaction. This is an advantage as this narrows the conditions under which we provide a true reflection, rather than forcing us to completely recreate the a true plane mirror as in computer graphics simulations.  As such, we can calibrate the robomirror to ensure it works for conditions 1) and 2) as stated. 
+
+Recall, the three key assumptions of the Francois and Kang [#Francois13] system are 1) camera is a pinhole model, 2) camera's imaging plane coincides with the mirror plane and 3) the world is on a flat plane parallel to the mirror plane, at a fixed distance z = f + d. In order to create an accurate reflection, the third assumption must be violated. This creates a unique problem as it would require a 3D model of the environment, as in computer graphics simulations. However,  as stated in [#Francois13], the mirror image the user sees depends on the user's perpendicular distance to the mirror, d. In fact, we observe that the image also appears to be a scaled version of a larger 2D background image. Thus, we must uncover the relationship between scaling and distance to the mirror in order to create the appropriate 2D background image for a good reflection. 
 
 
 Estimating the distance of user to Mirror
