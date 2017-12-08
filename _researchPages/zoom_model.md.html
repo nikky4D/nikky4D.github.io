@@ -141,31 +141,59 @@ y_p = \frac{Y_p}{Z_p} = \frac{d*Y}{Z} = \frac{d * (Y_c + t_y)}{Z_c + t_z} = \fra
 
 Advantages of the RoboMirror system
 -------------------------------------------------------------------------------
-The three key assumptions of the Francois and Kang [#Francois13] system are 1) camera is a pinhole model, 2) camera's imaging plane coincides with the mirror plane and 3) the world is on a flat plane parallel to the mirror plane, at a fixed distance z = f + d.
-
-In order to create an accurate reflection, the third assumption must be violated. This creates a unique problem. If a 3D model of the background is not available, then we must modify a 2D background adequately to create a realistic mirror reflection. The novelty of the robomirror system provides some simplifications that make it easier.
+The novelty in the robomirror system is that it provides some simplifications to the equation above that make it possible to use a 2D image for simulating a mirror. 
 
 The robomirror system consists of a camera attached to a robotic arm, capable of left-right, top-bottom (x-y) motion. The camera and arm are placed behind a one-way mirror. The user sits in front of the one-way mirror. As the user moves, the camera tracks the user's face location. The robotic arm moves in such a manner that the user's face is always in the center of the image. Hence, the **first** advantage of the robomirror system is the robomirror system tracks the x-y movements of the user. This simplifies the equation above by setting $t_x = t_y = 0$. The final translation parameter, $t_z$, that relates the camera's z-location to that of the virtual user's must still be found. Thus, our reflection equation is now:
 
 \begin{equation}
 x_p = \frac{X_p}{Z_p} = \frac{d*X}{Z} = \frac{d * (X_c + t_x)}{Z_c + t_z} = \frac{d * ( \frac{Z_c * x_{pc}}{f})}{Z_c + t_z}    \\
 y_p = \frac{Y_p}{Z_p} = \frac{d*Y}{Z} = \frac{d * (Y_c + t_y)}{Z_c + t_z} = \frac{d * ( \frac{Z_c * y_{pc}}{f})}{Z_c + t_z} 
+\label{eqn:Reflection}
 \end{equation}
 
-The second advantage of the robomirror system is that it is designed to work when the user is in an **interaction zone**. This means that 1) the user's face is directly in front of the one-way mirror, and 2) the user's face is within a set distance from the camera for optimal interaction. This is an advantage as this narrows the conditions under which we provide a true reflection, rather than forcing us to completely recreate the a true plane mirror as in computer graphics simulations.  As such, we can calibrate the robomirror to ensure it works for conditions 1) and 2) as stated. 
+**[TO DO: Change this paragraph. We want to eliminate estimating t_z. Why? This reduces the warping we would need to do, and hence chance of an error. Run simulations with and without t_z as a check. In addition, eliminating t_z will allow us to calibrate the robomirror to work in a certain interaction zone. This is good because we want the user to be close to the two-way mirror for interaction, rather than farther away from it.]** The second advantage of the robomirror system is that it is designed to work when the user is in an **interaction zone**. This means that 1) the user's face is directly in front of the one-way mirror, and 2) the user's face is within a set distance from the camera for optimal interaction. This is an advantage as this narrows the conditions under which we provide a true reflection, rather than forcing us to completely recreate a true plane mirror as in computer graphics simulations.  As such, we can calibrate the robomirror to ensure it works for conditions 1) and 2) as stated. 
 
 Recall, the three key assumptions of the Francois and Kang [#Francois13] system are 1) camera is a pinhole model, 2) camera's imaging plane coincides with the mirror plane and 3) the world is on a flat plane parallel to the mirror plane, at a fixed distance z = f + d. In order to create an accurate reflection, the third assumption must be violated. This creates a unique problem as it would require a 3D model of the environment, as in computer graphics simulations. However,  as stated in [#Francois13], the mirror image the user sees depends on the user's perpendicular distance to the mirror, d. In fact, we observe that the image also appears to be a scaled version of a larger 2D background image. Thus, we must uncover the relationship between scaling and distance to the mirror in order to create the appropriate 2D background image for a good reflection. 
 
 
 Estimating the distance of user to Mirror
 -------------------------------------------------------------------------------
+Our present reflection equation is given in equation \ref{eqn:Reflection}. Let us define the **interaction zone** as the region in the environment with the user's face in front of the mirror and the user is at some distance between $d = d_1$ and $d = d_2$ where $d_2 \gt d_1$. The interaction zone is defined during calibration. It allows the user to view the mirror without seeing behind the mirror, and sets a region where the mirror visualizations should be cut off. We can see that several scenarios result:
+
+1. If user is within an interaction zone, and background is far such that $Z \gg t_z$. This means $Z + t_z \approx Z$. Hence, equation \ref{eqn:Reflection} becomes: \begin{equation}
+x_p = \frac{X_p}{Z_p} \approx \frac{d * ( \frac{Z_c * x_{pc}}{f})}{Z_c}  =  \frac{d}{f} * x_{pc}\\
+y_p = \frac{Y_p}{Z_p} \approx \frac{d * ( \frac{Z_c * y_{pc}}{f})}{Z_c}  =  \frac{d}{f} * y_{pc}
+\end{equation}
+
+2. If user is within an interaction zone, and some of the background is near the user such that some distances $Z$ are of similar order to $t_z$. No change to equation \ref{eqn:Reflection}. However, we make an assumption here: that $Z_c + t_z \approx \alpha * Z_c$. Thus, for objects near the user in the image, we modify equation \ref{eqn:Reflection} such that we have:\begin{equation}
+x_p = \frac{X_p}{Z_p} \approx \frac{d * ( \frac{Z_c * x_{pc}}{f})}{Z_c}  =  (\frac{d}{\alpha})\frac{1}{f} * x_{pc}\\
+y_p = \frac{Y_p}{Z_p} \approx \frac{d * ( \frac{Z_c * y_{pc}}{f})}{Z_c}  =  (\frac{d}{\alpha})\frac{1}{f} * y_{pc}
+\end{equation}
+
+3. If user is too close or too far from mirror, then no visualization is put on mirror. Save us some work. 
+
+Several questions remain however. 
+
+First, how far must Z be for situations 1 or 2 above to hold. This is what I am currently working on in a unity3D simulation. In order to determine the value of d, a depth camera can be used.  
+
+Second, to generalize this to situations without the robomirror, what conditions must be set on $t_x, t_y, t_z, Z_c$, d or f to be able to use a 2D background and not a 3D model in creating this plane mirror. 
+
+Finally, if we only have a RBG (color) camera, with no depth sensing, how do we estimate d, $t_x, t_y, t_z, Z_c$ as these are all real-world coordinates. 
+
+In the next sections, we tackle the second question, returning (when I am done) to the first. 
+
+Estimating the distance of user to Mirror in RGB settings only
+--------------------------------------------------------------------------------
 
 
+
+Do I need to segment out the user completely? Is background subtraction needed?
+--------------------------------------------------------------------------------
 
 
 Summary
 -------------------------------------------------------------------------------
-In this work, we have explained how a TWM works. A TWM, designed for privacy, reflects most of the light hitting it, while allowing others to pass through. It is composed of a transparent medium, often glass, acrylic or some transparent plastic, coated with a very thin layer of a reflective medium, often silver or aluminium. A TWM acts like a mirror when the reflective side is much more brightly lit than the transparent side. In my next post, I will further explain the robotic mirror, my intended usage of the TWM.
+[TO DO]
 
 
 [Click here](../index.html) to navigate back to home page.
