@@ -177,19 +177,30 @@ where $y_pi, x_{pi}$ are the set of pixels at depth $d_i$.
 
 Results on TestBed: Multiple Flatworlds vs Flatworld vs Plane Mirror
 -------------------------------------------------------------------------------
-The following images are input to the system
+The following images are input to the system. Preliminary results are shown for usr at 3 different distances as calculated from retrieved depth map:
+
 ![1 Mirror](../assets/usr_img_at_usr_0p50.png width=100) ![2 Background](../assets/back_img_at_usr_0p50.png width=100) ![3 Background depth](../assets/back_depth_img_at_usr_0p50.png width=100)
 ![4](../assets/usr_img_at_3p5.png width=100) ![5](../assets/back_img_at_usr_3p5.png width=100) ![6](../assets/back_depth_img_at_usr_3p5.png width=100)
 ![7](../assets/usr_img_at_6p5.png width=100) ![8](../assets/back_img_at_usr_6p5.png width=100) ![9](../assets/back_depth_img_at_usr_6p5.png width=100)
 
+Results for FlatWorld vs Plane Mirror:
+![1](../assets/result_usr_1_flat.png ) ![2](../assets/result_usr_4_flat.png ) ![3](../assets/result_usr_7_flat.png )
 
-Preliminary results are shown for usr at 3 different distances as calculated from retrieved depth map:
+Results for MultiFlatworld vs Plane Mirror:
+![1](../assets/result_usr_1_multFlat.png ) ![2](../assets/result_usr_5_multFlat.png ) ![3](../assets/result_usr_7_multFlat.png )
 
-![Figure [viewpt]: The camera and virtual user's viewpoints from [#Francois13]](../assets/figure3_KangFrancois_b.png)
+Applying it to a Real world Image, taken with StereoLabs ZED camera:
+Input from Stereo:
+![1](../assets/vid5_left_135.png ) ![2](../assets/vid5_depth_left_135.png ) 
 
-![Figure [viewpt]: The camera and virtual user's viewpoints from [#Francois13]](../assets/figure3_KangFrancois_b.png)
+Results for FlatWorld:
+![Figure [Flatworld_result]: Flatworld results](../assets/result_flat_135.png ) 
 
-![Figure [viewpt]: The camera and virtual user's viewpoints from [#Francois13]](../assets/figure3_KangFrancois_b.png)
+Results for MultiFlatworld:
+![Figure [Multi_Flatworld_result]: 200 depth steps, Multi Flatworld results](../assets/result_multFlat_135_200steps.png ) 
+
+![Figure [Multi_Flatworld_result]: 20 depth steps, Multi Flatworld results](../assets/result_multFlat_135_20steps.png ) 
+
 
 
 Alternative Two: 2D scaling of background - Estimating the distance of user to Mirror
