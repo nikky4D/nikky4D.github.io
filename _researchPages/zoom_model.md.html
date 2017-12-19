@@ -138,6 +138,12 @@ x_p = \frac{X_p}{Z_p} = \frac{d*X}{Z} = \frac{d * (X_c + t_x)}{Z_c + t_z} = \fra
 y_p = \frac{Y_p}{Z_p} = \frac{d*Y}{Z} = \frac{d * (Y_c + t_y)}{Z_c + t_z} = \frac{d * ( \frac{Z_c * y_{pc}}{f} + t_y)}{Z_c + t_z} =   \frac{d * ( \frac{ (f+d) * x_{pc}}{f} + t_x)}{ (f+d) + t_z}
 \end{equation}
 
+TestBed
+-------------------------------------------------------------------------------
+Before continuing, I describe my testbed for the robomirror system. Built in Unity3D, it allows me to collect data as I would in the actual robomirror system. It consists of a mirror reflecting the user as they move in the environment, as well as a camera showing the user as they move in the environment.
+
+[TO DO]: get image from unity3d
+
 
 Advantages of the RoboMirror system
 -------------------------------------------------------------------------------
@@ -153,10 +159,40 @@ y_p = \frac{Y_p}{Z_p} = \frac{d*Y}{Z} = \frac{d * (Y_c + t_y)}{Z_c + t_z} = \fra
 
 **[TO DO: Change this paragraph. We want to eliminate estimating t_z. Why? This reduces the warping we would need to do, and hence chance of an error. Run simulations with and without t_z as a check. In addition, eliminating t_z will allow us to calibrate the robomirror to work in a certain interaction zone. This is good because we want the user to be close to the two-way mirror for interaction, rather than farther away from it.]** The second advantage of the robomirror system is that it is designed to work when the user is in an **interaction zone**. This means that 1) the user's face is directly in front of the one-way mirror, and 2) the user's face is within a set distance from the camera for optimal interaction. This is an advantage as this narrows the conditions under which we provide a true reflection, rather than forcing us to completely recreate a true plane mirror as in computer graphics simulations.  As such, we can calibrate the robomirror to ensure it works for conditions 1) and 2) as stated. 
 
-Recall, the three key assumptions of the Francois and Kang [#Francois13] system are 1) camera is a pinhole model, 2) camera's imaging plane coincides with the mirror plane and 3) the world is on a flat plane parallel to the mirror plane, at a fixed distance z = f + d. In order to create an accurate reflection, the third assumption must be violated. This creates a unique problem as it would require a 3D model of the environment, as in computer graphics simulations. However,  as stated in [#Francois13], the mirror image the user sees depends on the user's perpendicular distance to the mirror, d. In fact, we observe that the image also appears to be a scaled version of a larger 2D background image. Thus, we must uncover the relationship between scaling and distance to the mirror in order to create the appropriate 2D background image for a good reflection. 
+Recall, the three key assumptions of the Francois and Kang [#Francois13] system are 1) camera is a pinhole model, 2) camera's imaging plane coincides with the mirror plane and 3) the world is on a flat plane parallel to the mirror plane, at a fixed distance z = f + d. In order to create an accurate reflection, the third assumption must be violated. This creates a unique problem as it would require a 3D model of the environment, as in computer graphics simulations. 
+
+One possible alternative to the 3D model of the environment is a soft violation of the Flatworld assumption. Instead of a single flatworld, use multiple flatworlds. In this case, the user is still located at d, while the background and foreground are divided into depth layers $d_i$. 
+
+Another possible alternative to the 3D model comes from [#Francois13]. As stated in [#Francois13], the mirror image the user sees depends on the user's perpendicular distance to the mirror, d. In fact, we observe that the image also appears to be a scaled version of a larger 2D background image.  If we can model the relationship between scaling and distance to the mirror, we should be able to create the appropriate 2D background image for a good reflection. This is standard computer vision, which I need to check up again. 
+
+Alternative One: Multiple Flatworlds
+-------------------------------------------------------------------------------
+Our present reflection equation is given in equation \ref{eqn:Reflection}. Modifying the equation for multiple flatworlds $d_i$ involves estimating the pixels for various values of $d_i$. For instance, assume $d_i = \{ d_1, d_2, d_3, ..., d, d_4, d_5, ..., d_N \}$. where d is user's distance, and $d_i$ are depth distances from camera (to get distance to imaging plane, subtract f). Then, we replace Zc with $ Zc = f + d_i $. Hence, the equation for reflection becomes:
+\begin{equation}
+x_{pi} =   \frac{d * ( \frac{ (f + d_i) * x_{pci} }{f})}{ f + d_i + t_z}    \\
+y_{pi} =   \frac{d * ( \frac{ (f + d_i) * y_{pci} }{f})}{ f + d_i + t_z} 
+\label{eqn:mult_Reflection}
+\end{equation}
+where $y_pi, x_{pi}$ are the set of pixels at depth $d_i$. 
+
+Results on TestBed: Multiple Flatworlds vs Flatworld vs Plane Mirror
+-------------------------------------------------------------------------------
+The following images are input to the system
+![1 Mirror](../assets/usr_img_at_usr_0p50.png width=100) ![2 Background](../assets/back_img_at_usr_0p50.png width=100) ![3 Background depth](../assets/back_depth_img_at_usr_0p50.png width=100)
+![4](../assets/usr_img_at_3p5.png width=100) ![5](../assets/back_img_at_usr_3p5.png width=100) ![6](../assets/back_depth_img_at_usr_3p5.png width=100)
+![7](../assets/usr_img_at_6p5.png width=100) ![8](../assets/back_img_at_usr_6p5.png width=100) ![9](../assets/back_depth_img_at_usr_6p5.png width=100)
 
 
-Estimating the distance of user to Mirror
+Preliminary results are shown for usr at 3 different distances as calculated from retrieved depth map:
+
+![Figure [viewpt]: The camera and virtual user's viewpoints from [#Francois13]](../assets/figure3_KangFrancois_b.png)
+
+![Figure [viewpt]: The camera and virtual user's viewpoints from [#Francois13]](../assets/figure3_KangFrancois_b.png)
+
+![Figure [viewpt]: The camera and virtual user's viewpoints from [#Francois13]](../assets/figure3_KangFrancois_b.png)
+
+
+Alternative Two: 2D scaling of background - Estimating the distance of user to Mirror
 -------------------------------------------------------------------------------
 Our present reflection equation is given in equation \ref{eqn:Reflection}. Let us define the **interaction zone** as the region in the environment with the user's face in front of the mirror and the user is at some distance between $d = d_1$ and $d = d_2$ where $d_2 \gt d_1$. The interaction zone is defined during calibration. It allows the user to view the mirror without seeing behind the mirror, and sets a region where the mirror visualizations should be cut off. We can see that several scenarios result:
 
@@ -180,15 +216,27 @@ Second, to generalize this to situations without the robomirror, what conditions
 
 Finally, if we only have a RBG (color) camera, with no depth sensing, how do we estimate d, $t_x, t_y, t_z, Z_c$ as these are all real-world coordinates. 
 
-In the next sections, we tackle the second question, returning (when I am done) to the first. 
+In the next sections, we tackle these questions.
 
-Estimating the distance of user to Mirror in RGB settings only
+A few notes:
+--------------------------------------------------------------------------------
+1) $t_z$ can be written as $t_z = d - f$ due to the condition that the image plane of the camera coincides with the mirror plane. So, if we have d, and f, we can find $t_z$. 
+
+2) RGB camera setup will require extra calibration. In particular, it would require the accurate tracking of a reference point on the user's face, like a nose. This will ensure that $t_x, t_y$ can be calculated reliably if being used. 
+
+3) If we expect the user to center their faceIf, however, $t_x, t_y$ are very small, they can be eliminated from equation \ref{eqn:Reflection}, leaving us with robomirror equation.
+
+Alternative Two: Conditions on Z, $t_z$, 
+--------------------------------------------------------------------------------
+
+Alternative Two: Generalizing beyond the robomirror with a depth sensor and RBG cameras
+--------------------------------------------------------------------------------
+
+Alternative Two: Generalizing beyond the robomirror with a RGB cameras only
 --------------------------------------------------------------------------------
 
 
 
-Do I need to segment out the user completely? Is background subtraction needed?
---------------------------------------------------------------------------------
 
 
 Summary
